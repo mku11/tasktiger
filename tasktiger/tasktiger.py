@@ -462,7 +462,7 @@ class TaskTiger:
         max_workers_per_queue: Optional[int] = None,
         store_tracebacks: Optional[bool] = None,
         executor_class: Optional[Type[Executor]] = None,
-        exit_after: Optional[datetime.timedelta] = None):
+        exit_after: Optional[datetime.timedelta] = None) -> None:
         """
         Start worker
         """
