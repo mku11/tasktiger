@@ -10,7 +10,6 @@ from freezefrog import FreezeTime
 from tasktiger import Task, Worker
 from tasktiger._internal import ACTIVE
 from tasktiger.executor import SyncExecutor
-from tasktiger.tasktiger import TaskTiger
 from tasktiger.worker import LOCK_REDIS_KEY
 
 from .config import DELAY
