@@ -31,6 +31,7 @@ from ._internal import (
     ERROR,
     QUEUED,
     SCHEDULED,
+    COMPLETED,
     dotted_parts,
     gen_unique_id,
     import_attribute,
@@ -712,7 +713,7 @@ class Worker:
 
         def _mark_done() -> None:
             # Remove the task from active queue
-            task._move(from_state=ACTIVE)
+            task._move(from_state=ACTIVE, to_state=COMPLETED)
             log.info("done", **log_context)
 
         if success:

@@ -29,6 +29,7 @@ from ._internal import (
     ERROR,
     QUEUED,
     SCHEDULED,
+    COMPLETED,
     classproperty,
     g,
     queue_matches,
@@ -607,7 +608,7 @@ class TaskTiger:
         { "default": { "queued": 1, "error": 2 } }
         """
 
-        states = (QUEUED, ACTIVE, SCHEDULED, ERROR)
+        states = (QUEUED, ACTIVE, SCHEDULED, ERROR, COMPLETED)
 
         pipeline = self.connection.pipeline()
         for state in states:
