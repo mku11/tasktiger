@@ -1,0 +1,1 @@
+python3 -m debugpy --listen :5680 --wait-for-client ../../samples/sched_hello.py
