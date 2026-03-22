@@ -540,7 +540,7 @@ class TaskTiger:
         Get the queue's number of tasks in each state.
 
         Returns dict with queue size for the QUEUED, SCHEDULED, and ACTIVE
-        states. Does not include size of error queue.
+        states. Does not include size of error queue nor completed queue.
         """
 
         states = [QUEUED, SCHEDULED, ACTIVE]
