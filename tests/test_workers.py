@@ -277,10 +277,7 @@ class TestMaxParallelWorkers(BaseTestCase):
         worker = Process(
             target=external_parallel_worker,
             kwargs={
-                "worker_kwargs": {
-                    "queues": "a",
-                    "max_parallel_workers": 2
-                },
+                "worker_kwargs": {"queues": "a", "max_parallel_workers": 2},
             },
         )
         worker.start()

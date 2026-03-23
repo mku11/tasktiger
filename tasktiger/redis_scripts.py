@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Literal, Optional, Tuple, Union
 
 from redis import Redis
 
-from ._internal import ACTIVE, ERROR, QUEUED, SCHEDULED, COMPLETED
+from ._internal import ACTIVE, ERROR, QUEUED, SCHEDULED, WAITING, COMPLETED
 
 try:
     from redis.commands.core import Script
@@ -598,6 +598,7 @@ class RedisScripts:
         key_queued_queue = key_func(QUEUED, queue)
         key_error_queue = key_func(ERROR, queue)
         key_scheduled_queue = key_func(SCHEDULED, queue)
+        key_waiting_queue = key_func(WAITING, queue)
         key_completed_queue = key_func(COMPLETED, queue)
         key_activity = key_func("activity")
 
@@ -612,6 +613,7 @@ class RedisScripts:
                 key_queued_queue,
                 key_error_queue,
                 key_scheduled_queue,
+                key_waiting_queue,
                 key_completed_queue,
                 key_activity,
             ],

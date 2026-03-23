@@ -19,9 +19,12 @@ import redis
 from structlog.stdlib import BoundLogger
 
 from ._internal import (
+    ACTIVE,
     ERROR,
     QUEUED,
     SCHEDULED,
+    WAITING,
+    COMPLETED,
     g,
     gen_id,
     gen_unique_id,
@@ -53,6 +56,7 @@ class Task:
         unique_key: Optional[Collection[str]] = None,
         lock: Optional[bool] = None,
         lock_key: Optional[Collection[str]] = None,
+        depends: Optional[Union[str, Collection[str]]] = None,
         retry: Optional[bool] = None,
         retry_on: Optional[Collection[Type[BaseException]]] = None,
         retry_method: Optional[
@@ -140,6 +144,8 @@ class Task:
             task["unique"] = True
             if unique_key:
                 task["unique_key"] = unique_key
+        if depends:
+            task["depends"] = depends
         if lock or lock_key:
             task["lock"] = True
             if lock_key:
@@ -199,6 +205,10 @@ class Task:
     @property
     def lock(self) -> bool:
         return self._data.get("lock", False)
+
+    @property
+    def depends(self) -> List[str]:
+        return self._data.get("depends", None)
 
     @property
     def lock_key(self) -> Optional[str]:
@@ -478,6 +488,48 @@ class Task:
             )
         else:
             raise TaskNotFound("Task {} not found.".format(task_id))
+
+    def get_dependencies(self, states: Optional[List[str]] = None) -> List["Task"]:
+        """
+        Get the dependency tasks, use the states param to filter which states to search.
+        """
+        tasks: List[Task] = []
+        if not self.depends:
+            return tasks
+        if not states:
+            states = [QUEUED, ACTIVE, SCHEDULED, ERROR, WAITING, COMPLETED]
+        for dep_task_id in self.depends:
+            for state in states:
+                dep_task = self._get_dependency(state, self.queue, dep_task_id)
+                if dep_task:
+                    tasks.append(dep_task)
+        return tasks
+
+    def _get_dependency(
+        self, state: str, queue: str, task_id: str
+    ) -> Union["Task", None]:
+        """
+        Get the dependency task for the queue if it exists to avoid raising exceptions.
+        """
+        exists = self.tiger.connection.zscore(
+            self.tiger._key(state, self.queue), self.id
+        )
+        if exists:
+            try:
+                dep_task = Task.from_id(
+                    tiger=self.tiger,
+                    queue=self.queue,
+                    state=state,
+                    task_id=task_id,
+                )
+                return dep_task
+            except:
+                self.tiger.log.error(
+                    "dependency task not found",
+                    queue=self.queue,
+                    task_id=task_id,
+                )
+        return None
 
     @classmethod
     def tasks_from_queue(

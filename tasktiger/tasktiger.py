@@ -29,6 +29,7 @@ from ._internal import (
     ERROR,
     QUEUED,
     SCHEDULED,
+    WAITING,
     COMPLETED,
     classproperty,
     g,
@@ -429,14 +430,17 @@ class TaskTiger:
                 if pid != 0:
                     worker_pids.add(pid)
                     continue
-            
-            self._start_worker(queues,module,
+
+            self._start_worker(
+                queues,
+                module,
                 exclude_queues,
                 max_workers_per_queue,
                 store_tracebacks,
                 executor_class,
-                exit_after)
-            
+                exit_after,
+            )
+
             if pid == 0:
                 # for children we clear the inherited values from the parent
                 worker_pids.clear()
@@ -451,19 +455,21 @@ class TaskTiger:
                 if pid != 0:
                     worker_pids.remove(pid)
             except ChildProcessError as ex:
-                if ex.errno == 10: # no more children
+                if ex.errno == 10:  # no more children
                     worker_pids.clear()
             except Exception as ex:
                 print(ex, type(ex), file=sys.stderr)
 
-    def _start_worker(self,
+    def _start_worker(
+        self,
         queues: Optional[str] = None,
         module: Optional[str] = None,
         exclude_queues: Optional[str] = None,
         max_workers_per_queue: Optional[int] = None,
         store_tracebacks: Optional[bool] = None,
         executor_class: Optional[Type[Executor]] = None,
-        exit_after: Optional[datetime.timedelta] = None) -> None:
+        exit_after: Optional[datetime.timedelta] = None,
+    ) -> None:
         """
         Start worker
         """
@@ -500,6 +506,7 @@ class TaskTiger:
         lock: Optional[bool] = None,
         lock_key: Optional[Collection[str]] = None,
         when: Optional[Union[datetime.datetime, datetime.timedelta]] = None,
+        depends: Optional[Union[str, Collection[str]]] = None,
         retry: Optional[bool] = None,
         retry_on: Optional[Collection[Type[BaseException]]] = None,
         retry_method: Optional[
@@ -524,6 +531,7 @@ class TaskTiger:
             unique_key=unique_key,
             lock=lock,
             lock_key=lock_key,
+            depends=depends,
             retry=retry,
             retry_on=retry_on,
             retry_method=retry_method,
@@ -602,13 +610,13 @@ class TaskTiger:
         """
         Returns a dict with stats about all the queues. The keys are the queue
         names, the values are dicts representing how many tasks are in a given
-        status ("queued", "active", "error" or "scheduled").
+        status ("queued", "active", "error", "waiting", "completed" or "scheduled").
 
         Example return value:
         { "default": { "queued": 1, "error": 2 } }
         """
 
-        states = (QUEUED, ACTIVE, SCHEDULED, ERROR, COMPLETED)
+        states = (QUEUED, ACTIVE, SCHEDULED, ERROR, WAITING, COMPLETED)
 
         pipeline = self.connection.pipeline()
         for state in states:

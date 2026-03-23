@@ -33,6 +33,7 @@ QUEUED = "queued"
 ACTIVE = "active"
 SCHEDULED = "scheduled"
 ERROR = "error"
+WAITING = "waiting"
 COMPLETED = "completed"
 
 # This lock is acquired in the main process when forking, and must be acquired
