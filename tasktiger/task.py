@@ -523,7 +523,7 @@ class Task:
                     task_id=task_id,
                 )
                 return dep_task
-            except:
+            except Exception:
                 self.tiger.log.error(
                     "dependency task not found",
                     queue=self.queue,
