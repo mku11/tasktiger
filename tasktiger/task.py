@@ -512,13 +512,13 @@ class Task:
         Get the dependency task for the queue if it exists to avoid raising exceptions.
         """
         exists = self.tiger.connection.zscore(
-            self.tiger._key(state, self.queue), self.id
+            self.tiger._key(state, queue), task_id
         )
         if exists:
             try:
                 dep_task = Task.from_id(
                     tiger=self.tiger,
-                    queue=self.queue,
+                    queue=queue,
                     state=state,
                     task_id=task_id,
                 )
