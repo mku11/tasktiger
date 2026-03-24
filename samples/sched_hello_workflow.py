@@ -11,8 +11,9 @@ tiger = TaskTiger()
 # 2. multilevel workflow
 # LVL 1
 group1 = []
-for i in range(6):
-    group1.append(tiger.delay(tasks.hello, args=("group1:" + str(i), 15)))
+tasks_num = 4
+for i in range(tasks_num):
+    group1.append(tiger.delay(tasks.hello, args=("group1:" + str(i), 20)))
 group2 = []
 # LVL 2
 # single deps
@@ -21,6 +22,8 @@ group2.append(tiger.delay(tasks.hello, args=("group2:1", 7), depends=[group1[1].
 # multiple deps
 deps = list(map(lambda x: x.id, [group1[2], group1[3]]))
 group2.append(tiger.delay(tasks.hello, args=("group2:2", 4), depends=deps))
+# no deps
+group2.append(tiger.delay(tasks.hello, args=("group2:3", 2)))
 # LVL 3
 deps3 = list(map(lambda x: x.id, group2))
 tiger.delay(tasks.hello, args=("group3:0", 4), depends=deps3)
