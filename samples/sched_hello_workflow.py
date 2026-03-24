@@ -22,7 +22,8 @@ group2.append(tiger.delay(tasks.hello, args=("group2:1", 7), depends=[group1[1].
 deps = list(map(lambda x: x.id, [group1[2], group1[3]]))
 group2.append(tiger.delay(tasks.hello, args=("group2:2", 4), depends=deps))
 # LVL 3
-tiger.delay(tasks.hello, args=("group3:0", 4), depends=[group2[0].id])
+deps3 = list(map(lambda x: x.id, group2))
+tiger.delay(tasks.hello, args=("group3:0", 4), depends=deps3)
 
 
 # 3. unknown dep (always waiting)
