@@ -14,5 +14,5 @@ for task in tasks:
     try:
         task.delete()
         print("deleted:", task.id)
-    except:
-        print("cannot delete:", task.id)
+    except Exception as ex:
+        print("cannot delete:", task.id, ex)
