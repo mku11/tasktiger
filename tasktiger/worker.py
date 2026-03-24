@@ -712,7 +712,7 @@ class Worker:
 
         for dep_task_id in task.depends:
             dep_task = Task.from_id(
-                self.tiger, queue=task.queue, state="completed", task_id=dep_task_id
+                self.tiger, queue=task.queue, state=COMPLETED, task_id=dep_task_id
             )
             if not dep_task:
                 return False
