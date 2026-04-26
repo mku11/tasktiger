@@ -680,6 +680,8 @@ class Task:
         """
         if self.state == COMPLETED:
             self._move(from_state=COMPLETED)
+        elif self.state == WAITING:
+            self._move(from_state=WAITING)
         else:
             self._move(from_state=ERROR)
 
